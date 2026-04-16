@@ -78,8 +78,9 @@ WSGI_APPLICATION = 'free_mentors_bn.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+          "ENGINE": "django_mongodb_backend",
+          "HOST": "<connection string URI>",
+          "NAME": "free_mentors_db",
     }
 }
 
