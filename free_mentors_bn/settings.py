@@ -11,21 +11,31 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import environ
+import os
+
+env = environ.Env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Read .env file
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+
+
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-n!gjg7jd7zrpub%(74px@f6mj55^xi_3zfowwd$@t$c(k@7606'
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
+
 
 
 # Application definition
@@ -78,9 +88,11 @@ WSGI_APPLICATION = 'free_mentors_bn.wsgi.application'
 
 DATABASES = {
     'default': {
-          "ENGINE": "django_mongodb_backend",
-          "HOST": "<connection string URI>",
-          "NAME": "free_mentors_db",
+        'ENGINE': 'djongo',
+        'NAME': env('MONGODB_DB_NAME'),
+        'CLIENT': {
+            'host': env('MONGODB_URI'),
+        }
     }
 }
 

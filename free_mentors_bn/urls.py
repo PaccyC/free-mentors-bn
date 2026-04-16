@@ -24,6 +24,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     url(r"graphql", GraphQLView.as_view(graphiql=True)),
     path("graphql", csrf_exempt(GraphQLView.as_view(graphiql=True))),
-    path("users/", include("users.urls")),
-    path("mentorship-sessions/", include("mentorship_sessions.urls")),
+    # path("users/", include("users.urls")),
+    # path("mentorship-sessions/", include("mentorship_sessions.urls")),
 ]
