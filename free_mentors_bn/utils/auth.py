@@ -3,6 +3,10 @@ import datetime
 from django.conf import settings
 
 
+def _jwt_secret():
+    return getattr(settings, 'JWT_SECRET', None) or settings.SECRET_KEY
+
+
 def create_token(user):
     payload = {
         'user_id': str(user.id),
@@ -10,11 +14,11 @@ def create_token(user):
         'role': user.role,
         'exp': datetime.datetime.utcnow() + datetime.timedelta(days=7),
     }
-    return jwt.encode(payload, settings.JWT_SECRET, algorithm='HS256')
+    return jwt.encode(payload, _jwt_secret(), algorithm='HS256')
 
 
 def decode_token(token):
-    return jwt.decode(token, settings.JWT_SECRET, algorithms=['HS256'])
+    return jwt.decode(token, _jwt_secret(), algorithms=['HS256'])
 
 
 def get_user_from_info(info):
