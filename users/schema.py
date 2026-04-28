@@ -28,6 +28,7 @@ class Signup(graphene.Mutation):
         expertise = graphene.String(default_value='')
 
     Output = AuthPayload
+    
 
     def mutate(self, info, first_name, last_name, email, password,
                bio='', address='', occupation='', expertise=''):
@@ -82,10 +83,46 @@ class ChangeUserToMentor(graphene.Mutation):
         return user
 
 
+class CreateAdmin(graphene.Mutation):
+    class Arguments:
+        admin_creation_key = graphene.String(required=True)
+        first_name = graphene.String(required=True)
+        last_name = graphene.String(required=True)
+        email = graphene.String(required=True)
+        password = graphene.String(required=True)
+        bio = graphene.String(default_value='')
+        address = graphene.String(default_value='')
+        occupation = graphene.String(default_value='')
+        expertise = graphene.String(default_value='')
+
+    Output = UserType
+
+    def mutate(self, info, admin_creation_key, first_name, last_name, email, password,
+               bio='', address='', occupation='', expertise=''):
+        from django.conf import settings
+        expected = settings.ADMIN_CREATION_KEY
+        if not expected or admin_creation_key != expected:
+            raise Exception("Invalid admin creation key")
+        if User.objects.filter(email=email).exists():
+            raise Exception("Email already in use")
+        return User.objects.create(
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            password=make_password(password),
+            bio=bio,
+            address=address,
+            occupation=occupation,
+            expertise=expertise,
+            role='ADMIN',
+        )
+
+
 class UserMutation(graphene.ObjectType):
     signup = Signup.Field()
     login = Login.Field()
     change_user_to_mentor = ChangeUserToMentor.Field()
+    create_admin = CreateAdmin.Field()
 
 
 class UserQuery(graphene.ObjectType):
