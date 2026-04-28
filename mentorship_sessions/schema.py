@@ -29,10 +29,22 @@ class CreateSession(graphene.Mutation):
         user = get_user_from_info(info)
         if not user:
             raise Exception("Not authenticated")
+        if user.role in ('MENTOR', 'ADMIN'):
+            raise Exception("Only regular users can request mentorship sessions")
         try:
             mentor = User.objects.get(id=int(mentor_id), role='MENTOR')
         except (User.DoesNotExist, ValueError):
             raise Exception("Mentor not found")
+        # Check for time conflicts: sessions are treated as 1 hour long
+        existing = list(MentorshipSession.objects.filter(mentee=user))
+        for s in existing:
+            if s.status != 'DECLINED' and s.scheduled_at:
+                diff = abs((scheduled_at - s.scheduled_at).total_seconds())
+                if diff < 3600:
+                    raise Exception(
+                        "You already have a session scheduled during this time period. "
+                        "Sessions are 1 hour long — please choose a different time."
+                    )
         return MentorshipSession.objects.create(
             mentee=user,
             mentor=mentor,
@@ -101,6 +113,10 @@ class ReviewMentor(graphene.Mutation):
             raise Exception("Mentor not found")
         if not (1 <= score <= 5):
             raise Exception("Score must be between 1 and 5")
+        # Must have at least one accepted session with this mentor
+        sessions = list(MentorshipSession.objects.filter(mentee=user, mentor=mentor))
+        if not any(s.status == 'ACCEPTED' for s in sessions):
+            raise Exception("You need at least one accepted session with this mentor to leave a review")
         return Review.objects.create(mentee=user, mentor=mentor, score=score, comment=comment)
 
 

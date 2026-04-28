@@ -10,6 +10,7 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 SECRET_KEY = env('SECRET_KEY')
 JWT_SECRET = env('JWT_SECRET', default=SECRET_KEY)
+ADMIN_CREATION_KEY = env('ADMIN_CREATION_KEY', default='')
 
 DEBUG = True
 
